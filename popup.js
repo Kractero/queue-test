@@ -17,3 +17,14 @@ document.getElementById('startButton').addEventListener('click', () => {
     window.close()
   })
 })
+
+document.getElementById('optionsButton').addEventListener('click', () => {
+  browser.runtime.openOptionsPage()
+})
+
+if (window.location.pathname.includes('options.html')) {
+  const optionsButton = document.getElementById('optionsButton')
+  if (optionsButton) {
+    optionsButton.style.display = 'none'
+  }
+}
