@@ -3,7 +3,7 @@
   "name": "Queue Navigator",
   "version": "1.0",
   "description": "Navigate through links",
-  "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "permissions": ["tabs", "storage", "activeTab", "scripting", "<all_urls>"],
   "host_permissions": ["https://*.nationstates.net/*"],
   "background": {
     "scripts": ["background.js"],
