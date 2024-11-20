@@ -1,14 +1,43 @@
 let linkQueue = []
 let isNavigating = false
 let currentTabId = null
+let stopped = false
 
 browser.runtime.onMessage.addListener(async message => {
-  if (message.action === 'setQueue') {
+  if (message.action === 'clearLinks') {
     browser.browserAction.setBadgeText({ text: '' })
     linkQueue = []
     isNavigating = false
+    stopped = true
+  }
+  if (message.action === 'stop') {
+    stopped = true
+  }
+  if (message.action === 'setQueue') {
+    browser.runtime.sendMessage({
+      action: 'scriptStarted',
+      running: true,
+    })
+    browser.browserAction.setBadgeText({ text: '' })
+    linkQueue = []
+    isNavigating = false
+    let progress = ''
+    stopped = false
 
     for (let i = 0; i < message.nations.length; i++) {
+      if (stopped) {
+        progress += `<p class="text-red-500">Processing stopped by user.</p>`
+        browser.runtime.sendMessage({
+          action: 'updateProgress',
+          progress: progress,
+        })
+        break // Exit the loop if stopped
+      }
+      progress += `<p>Processing nation: ${message.nations[i]} (${i + 1}/${message.nations.length})</p>`
+      browser.runtime.sendMessage({
+        action: 'updateProgress',
+        progress: progress,
+      })
       const response = await fetch(
         `https://www.nationstates.net/cgi-bin/api.cgi?nation=${message.nations[i]
           .replaceAll(' ', '_')
@@ -40,7 +69,7 @@ browser.runtime.onMessage.addListener(async message => {
         )
       }
 
-      browser.browserAction.setBadgeText({ text: (i + 1).toString() })
+      browser.browserAction.setBadgeText({ text: (message.nations.length - (i + 1)).toString() })
 
       if (linkQueue.length > 0 && !isNavigating) {
         isNavigating = true
@@ -49,6 +78,15 @@ browser.runtime.onMessage.addListener(async message => {
 
       await new Promise(resolve => setTimeout(resolve, 600))
     }
+    progress += `<p class="text-green-500">Finished processing ${message.nations.length} nations!</p>`
+    browser.runtime.sendMessage({
+      action: 'updateProgress',
+      progress: progress,
+    })
+    browser.runtime.sendMessage({
+      action: 'scriptStarted',
+      progress: false,
+    })
   }
 })
 

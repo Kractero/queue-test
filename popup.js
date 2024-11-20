@@ -20,6 +20,20 @@ document.getElementById('startButton').addEventListener('click', () => {
   })
 })
 
+document.getElementById('stopButton').addEventListener('click', () => {
+  browser.runtime.sendMessage({ action: 'stop' })
+  if (!window.location.pathname.includes('options.html')) {
+    window.close()
+  }
+})
+
+document.getElementById('clearButton').addEventListener('click', () => {
+  browser.runtime.sendMessage({ action: 'clearLinks' })
+  if (!window.location.pathname.includes('options.html')) {
+    window.close()
+  }
+})
+
 document.getElementById('optionsButton').addEventListener('click', () => {
   browser.runtime.openOptionsPage()
 })
@@ -30,3 +44,16 @@ if (window.location.pathname.includes('options.html')) {
     optionsButton.style.display = 'none'
   }
 }
+
+browser.runtime.onMessage.addListener(message => {
+  if (message.action === 'updateProgress') {
+    const { progress } = message
+
+    document.querySelector('pre').innerHTML = progress
+  }
+  if (message.action === 'scriptStarted') {
+    const { running } = message
+
+    document.querySelector('#clearButton').disabled = running
+  }
+})
