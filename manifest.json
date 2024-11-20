@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Queue Navigator",
+  "version": "1.0",
+  "description": "Navigate through links",
+  "permissions": ["tabs", "storage", "activeTab", "scripting"],
+  "host_permissions": ["https://*.nationstates.net/*"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  }
+}
