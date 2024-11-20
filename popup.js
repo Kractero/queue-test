@@ -34,6 +34,13 @@ document.getElementById('clearButton').addEventListener('click', () => {
   }
 })
 
+document.getElementById('startQueue').addEventListener('click', () => {
+  browser.runtime.sendMessage({ action: 'startNavigation' })
+  if (!window.location.pathname.includes('options.html')) {
+    window.close()
+  }
+})
+
 document.getElementById('optionsButton').addEventListener('click', () => {
   browser.runtime.openOptionsPage()
 })
@@ -54,6 +61,13 @@ browser.runtime.onMessage.addListener(message => {
   if (message.action === 'scriptStarted') {
     const { running } = message
 
-    document.querySelector('#clearButton').disabled = running
+    document.querySelector('#clearButton').disabled = !running
+    document.querySelector('#stopButton').disabled = !running
+  }
+  if (message.action === 'queueEmpty') {
+    document.querySelector('#startQueue').disabled = true
+  }
+  if (message.action === 'queueHasLink') {
+    document.querySelector('#startQueue').disabled = false
   }
 })

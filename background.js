@@ -13,6 +13,12 @@ browser.runtime.onMessage.addListener(async message => {
   if (message.action === 'stop') {
     stopped = true
   }
+  if (message.action === 'startNavigation') {
+    if (!isNavigating) {
+      isNavigating = true
+      startNavigation()
+    }
+  }
   if (message.action === 'setQueue') {
     browser.runtime.sendMessage({
       action: 'scriptStarted',
@@ -31,7 +37,7 @@ browser.runtime.onMessage.addListener(async message => {
           action: 'updateProgress',
           progress: progress,
         })
-        break // Exit the loop if stopped
+        break
       }
       progress += `<p>Processing nation: ${message.nations[i]} (${i + 1}/${message.nations.length})</p>`
       browser.runtime.sendMessage({
@@ -67,14 +73,10 @@ browser.runtime.onMessage.addListener(async message => {
         linkQueue.push(
           `https://www.nationstates.net/container=${nation_formatted}/nation=${nation_formatted}/page=show_dilemma/dilemma=${issueId}/template-overall=none?generated_by=Test_Extension__author_main_nation_Kractero__usedBy_${message.userAgent}`
         )
+        browser.runtime.sendMessage({ action: 'queueHasLink' })
       }
 
       browser.browserAction.setBadgeText({ text: (message.nations.length - (i + 1)).toString() })
-
-      if (linkQueue.length > 0 && !isNavigating) {
-        isNavigating = true
-        startNavigation()
-      }
 
       await new Promise(resolve => setTimeout(resolve, 600))
     }
@@ -93,12 +95,27 @@ browser.runtime.onMessage.addListener(async message => {
 async function startNavigation() {
   if (linkQueue.length === 0) {
     isNavigating = false
+    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 
   try {
     const newTab = await browser.tabs.create({ url: 'about:blank', active: true })
     currentTabId = newTab.id
+
+    const onTabRemoved = tabId => {
+      if (tabId === currentTabId) {
+        console.log(`Tab ${tabId} closed. Adding link back to queue.`)
+        if (linkQueue.length > 0 && !isNavigating) {
+          linkQueue.unshift(`https://www.nationstates.net${currentTabId}`) // Restore the failed navigation
+        }
+
+        isNavigating = false
+        currentTabId = null
+        browser.tabs.onRemoved.removeListener(onTabRemoved)
+      }
+    }
+    browser.tabs.onRemoved.addListener(onTabRemoved)
     await navigateToNext()
   } catch (error) {
     console.error('Error starting navigation:', error)
@@ -109,6 +126,7 @@ async function startNavigation() {
 async function navigateToNext() {
   if (linkQueue.length === 0) {
     isNavigating = false
+    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 
