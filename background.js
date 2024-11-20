@@ -4,6 +4,10 @@ let currentTabId = null
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.action === 'setQueue') {
+    browser.browserAction.setBadgeText({ text: '' })
+    linkQueue = []
+    isNavigating = false
+
     for (let i = 0; i < message.nations.length; i++) {
       const response = await fetch(
         `https://www.nationstates.net/cgi-bin/api.cgi?nation=${message.nations[i]
@@ -36,6 +40,8 @@ browser.runtime.onMessage.addListener(async message => {
         )
       }
 
+      browser.browserAction.setBadgeText({ text: (i + 1).toString() })
+
       if (linkQueue.length > 0 && !isNavigating) {
         isNavigating = true
         startNavigation()
@@ -53,8 +59,8 @@ async function startNavigation() {
   }
 
   try {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-    currentTabId = tabs[0].id
+    const newTab = await browser.tabs.create({ url: 'about:blank', active: true })
+    currentTabId = newTab.id
     await navigateToNext()
   } catch (error) {
     console.error('Error starting navigation:', error)

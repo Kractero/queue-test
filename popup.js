@@ -14,7 +14,9 @@ document.getElementById('startButton').addEventListener('click', () => {
   }
 
   browser.runtime.sendMessage({ action: 'setQueue', nations, userAgent, password }, () => {
-    window.close()
+    if (!window.location.pathname.includes('options.html')) {
+      window.close()
+    }
   })
 })
 
