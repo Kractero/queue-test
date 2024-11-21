@@ -28,6 +28,7 @@ browser.runtime.onMessage.addListener(async message => {
     linkQueue = []
     isNavigating = false
     let progress = ''
+    let count = 0
     stopped = false
 
     for (let i = 0; i < message.nations.length; i++) {
@@ -74,6 +75,7 @@ browser.runtime.onMessage.addListener(async message => {
         linkQueue.push(
           `https://www.nationstates.net/container=${nation_formatted}/nation=${nation_formatted}/page=show_dilemma/dilemma=${issueId}/template-overall=none?generated_by=Test_Extension__author_main_nation_Kractero__usedBy_${message.userAgent}`
         )
+        count++
         browser.runtime.sendMessage({ action: 'queueHasLink' })
       }
 
@@ -81,7 +83,7 @@ browser.runtime.onMessage.addListener(async message => {
 
       await new Promise(resolve => setTimeout(resolve, 600))
     }
-    progress += `<p class="text-green-500">Finished processing ${message.nations.length} nations!</p>`
+    progress += `<p class="text-green-500">Finished processing ${message.nations.length} nations, equaling ${count} issues!</p>`
     browser.runtime.sendMessage({
       action: 'updateProgress',
       progress: progress,
@@ -96,6 +98,7 @@ browser.runtime.onMessage.addListener(async message => {
 async function startNavigation() {
   if (linkQueue.length === 0) {
     isNavigating = false
+    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 
@@ -121,6 +124,7 @@ async function startNavigation() {
 async function navigateToNext() {
   if (linkQueue.length === 0) {
     isNavigating = false
+    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 
