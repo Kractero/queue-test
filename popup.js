@@ -1,7 +1,12 @@
 document.getElementById('startButton').addEventListener('click', () => {
-  const nationsInput = document.getElementById('nationInput').value
-  const userAgent = document.getElementById('ua').value
   const password = document.getElementById('pass').value
+
+  if (!password) {
+    alert('Please enter your password')
+    return
+  }
+  const nationsInput = localStorage.getItem('nationInput')
+  const userAgent = localStorage.getItem('ua')
 
   const nations = nationsInput
     .split('\n')
@@ -53,10 +58,12 @@ if (window.location.pathname.includes('options.html')) {
 }
 
 browser.runtime.onMessage.addListener(message => {
-  if (message.action === 'updateProgress') {
-    const { progress } = message
+  if (window.location.pathname.includes('options.html')) {
+    if (message.action === 'updateProgress') {
+      const { progress } = message
 
-    document.querySelector('pre').innerHTML = progress
+      document.querySelector('pre').innerHTML = progress
+    }
   }
   if (message.action === 'scriptStarted') {
     const { running } = message

@@ -5,29 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test</title>
     <style>
-      body, pre {
+      body,
+      pre {
         padding: 1rem;
       }
     </style>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-    >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
   </head>
   <body>
     <button id="optionsButton">Go to Full Page</button>
 
-    <input id="ua" placeholder="User agent (main nation)"></input>
-    <input id="pass" type="password"></input>
-    <textarea id="nationInput" placeholder="Enter one nation per line"></textarea>
+    <form id="settingsForm">
+      <label for="ua">User Agent (Main Nation)</label>
+      <input id="ua" name="ua" placeholder="User agent (main nation)" type="text" required />
+
+      <label for="nationInput">Enter Nations</label>
+      <textarea id="nationInput" name="nationInput" placeholder="Enter one nation per line" required></textarea>
+
+      <button type="submit">Submit</button>
+    </form>
+
     <div>
-      <button id="startButton">Start</button>
+      <form id="passwordForm">
+        <label for="pass">Password</label>
+        <input id="pass" name="pass" type="password" required />
+        <button type="submit" id="startButton">Start</button>
+      </form>
       <button disabled id="stopButton">Stop</button>
-      <button id="clearButton">Clear</button>
+      <button type="button" id="clearButton">Clear</button>
       <button disabled id="startQueue">Open Available Link</button>
     </div>
 
     <pre></pre>
     <script src="popup.js"></script>
+    <script src="options.js"></script>
   </body>
 </html>

@@ -24,11 +24,12 @@
   <body>
     <button id="optionsButton">Go to Full Page</button>
 
-    <input id="ua" placeholder="User agent (main nation)"></input>
-    <input id="pass" type="password"></input>
-    <textarea id="nationInput" placeholder="Enter one nation per line"></textarea>
     <div>
-      <button id="startButton">Start</button>
+      <form id="passwordForm">
+        <label for="pass">Password</label>
+        <input id="pass" name="pass" type="password" required />
+        <button type="submit" id="startButton">Start</button>
+      </form>
       <button id="stopButton">Stop</button>
       <button id="clearButton">Clear</button>
       <button id="startQueue">Open Available Link</button>
