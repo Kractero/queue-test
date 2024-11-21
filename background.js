@@ -57,9 +57,10 @@ browser.runtime.onMessage.addListener(async message => {
       )
 
       const text = await response.text()
-      const parser = new DOMParser()
-      const xmlDoc = parser.parseFromString(text, 'application/xml')
+      const fixedText = text.replace(/(<\w+\s+[^>]*?)(id=-?\d+)([^>]*?>)/g, '$1id="$2"$3')
 
+      const parser = new DOMParser()
+      const xmlDoc = parser.parseFromString(fixedText, 'application/xml')
       const issues = Array.from(xmlDoc.querySelectorAll('ISSUE'))
       let issueIds = issues.map(issue => issue.getAttribute('id'))
 
@@ -95,7 +96,6 @@ browser.runtime.onMessage.addListener(async message => {
 async function startNavigation() {
   if (linkQueue.length === 0) {
     isNavigating = false
-    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 
@@ -105,11 +105,6 @@ async function startNavigation() {
 
     const onTabRemoved = tabId => {
       if (tabId === currentTabId) {
-        console.log(`Tab ${tabId} closed. Adding link back to queue.`)
-        if (linkQueue.length > 0 && !isNavigating) {
-          linkQueue.unshift(`https://www.nationstates.net${currentTabId}`) // Restore the failed navigation
-        }
-
         isNavigating = false
         currentTabId = null
         browser.tabs.onRemoved.removeListener(onTabRemoved)
@@ -126,7 +121,6 @@ async function startNavigation() {
 async function navigateToNext() {
   if (linkQueue.length === 0) {
     isNavigating = false
-    browser.runtime.sendMessage({ action: 'queueEmpty' })
     return
   }
 

@@ -61,7 +61,7 @@ browser.runtime.onMessage.addListener(message => {
   if (message.action === 'scriptStarted') {
     const { running } = message
 
-    document.querySelector('#clearButton').disabled = !running
+    // document.querySelector('#clearButton').disabled = !running
     document.querySelector('#stopButton').disabled = !running
   }
   if (message.action === 'queueEmpty') {
